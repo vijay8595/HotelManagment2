@@ -1,6 +1,9 @@
 package com.oyo.HotelManagment2.controller;
 
+import com.oyo.HotelManagment2.Exception.HotelNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,17 +22,42 @@ public class HotelController {
   @Autowired
   private HotelService hotelService;
 
+
+  //get ALl hotels By location
+
   @PostMapping("/create")
-  public Boolean createHotel(@RequestBody HotelRequestDto hotelRequestDto){
-    Boolean success=hotelService.createHotel(hotelRequestDto);
-    return success;
+  public ResponseEntity<Boolean> createHotel(@RequestBody HotelRequestDto hotelRequestDto){
+    Boolean success= hotelService.createHotel(hotelRequestDto);
+
+    return  new ResponseEntity<>(success, HttpStatus.CREATED);
 
   }
+
+
 
   @GetMapping("/")
-  public HotelResponseDto getAllHotels(@RequestParam Integer hotelId){
-    hotelService
+  public ResponseEntity<HotelResponseDto> getHotelDetails(@RequestParam Integer hotelId)  {
+
+    try{
+      HotelResponseDto hotelResponseDto=  hotelService.getHotelDetails(hotelId);
+      return new ResponseEntity<>(hotelResponseDto,HttpStatus.OK);
+
+    }
+    catch (HotelNotFoundException e){
+      HotelResponseDto  hotelResponseDto = new HotelResponseDto();
+      hotelResponseDto.setErrorMessage(e.getMessage());
+      return new ResponseEntity<>(hotelResponseDto,HttpStatus.BAD_REQUEST);
+
+    }
+
+
+
+
+
 
   }
+
+
+
 
 }

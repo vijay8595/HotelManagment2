@@ -1,6 +1,7 @@
 package com.oyo.HotelManagment2.service;
 
 
+import com.oyo.HotelManagment2.Exception.HotelNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.oyo.HotelManagment2.dto.request.HotelRequestDto;
@@ -8,42 +9,53 @@ import com.oyo.HotelManagment2.dto.response.HotelResponseDto;
 import com.oyo.HotelManagment2.entity.Hotel;
 import com.oyo.HotelManagment2.repo.HotelRepository;
 
+import java.util.Optional;
+
 @Component
 public class HotelService {
 
-  @Autowired
-  private HotelRepository hotelRepository;
+    @Autowired
+    private HotelRepository hotelRepository;
 
 
-  public Boolean createHotel(HotelRequestDto hotelRequestDto) {
+    public Boolean createHotel(HotelRequestDto hotelRequestDto) {
 
-    Hotel hotel = convertHotelRequestDtoToHotel(hotelRequestDto);
-    hotelRepository.save(hotel);
-    return true;
-  }
+        Hotel hotel = convertHotelRequestDtoToHotel(hotelRequestDto);
+        hotelRepository.save(hotel);
+        return true;
+    }
 
-  public HotelResponseDto getHotelDetails(Integer hotelId){
+    public HotelResponseDto getHotelDetails(Integer hotelId) throws HotelNotFoundException {
 
-    Hotel hotel=hotelRepository.findByHotelId(hotelId);
-    return convertHotelToResponseDto();
+        Optional<Hotel> hotel = hotelRepository.findById(hotelId);
+        if (!hotel.isPresent()) {
+            throw new HotelNotFoundException("Hotel Not Present");
+        }
+        return convertHotelToResponseDto(hotel.get());
 
-  }
+    }
 
-  private HotelResponseDto convertHotelToResponseDto() {
-    return null;
-  }
+    private HotelResponseDto convertHotelToResponseDto(Hotel hotel) {
+        return HotelResponseDto.builder().hotelName(hotel.getHotelName())
+                .address(hotel.getAddress()).rooms(hotel.getRoomList()).build();
+//    HotelResponseDto hotelResponseDto = new HotelResponseDto();
+//    hotelResponseDto.setHotelName(hotel.getHotelName());
+//    hotelResponseDto.setAddress(hotel.getAddress());
+//    hotelResponseDto.setRooms(hotel.getRoomList());
 
-  private Hotel convertHotelRequestDtoToHotel(HotelRequestDto hotelRequestDto) {
+        // more details to set if you want that you share to your client
+    }
 
-    Hotel hotel = new Hotel();
-    hotel.setHotelName(hotelRequestDto.getHotelName());
-    hotel.setHotelId(hotelRequestDto.getHotelId());
-    hotel.setAddress(hotelRequestDto.getAddress());
-    hotel.setContactNumber(hotelRequestDto.getContactNumber());
-    hotel.setStatus(hotelRequestDto.getStatus());
+    private Hotel convertHotelRequestDtoToHotel(HotelRequestDto hotelRequestDto) {
 
-    return hotel;
-  }
+        Hotel hotel = new Hotel();
+        hotel.setHotelName(hotelRequestDto.getHotelName());
+        hotel.setAddress(hotelRequestDto.getAddress());
+        hotel.setContactNumber(hotelRequestDto.getContactNumber());
+        hotel.setStatus(hotelRequestDto.getStatus());
+
+        return hotel;
+    }
 
 
 }

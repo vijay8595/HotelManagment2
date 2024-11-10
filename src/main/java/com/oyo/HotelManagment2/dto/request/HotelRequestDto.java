@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class HotelRequestDto {
 
-  private Integer hotelId;
   private String hotelName;
   private String address;
   private String contactNumber;
